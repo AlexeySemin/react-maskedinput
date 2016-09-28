@@ -14,6 +14,10 @@ function isRedo(e) {
   return (e.ctrlKey || e.metaKey) && e.keyCode === (e.shiftKey ? KEYCODE_Z : KEYCODE_Y)
 }
 
+function isIEEdgeDesktop() {
+  return !navigator.userAgent.match(/Android/i) && navigator.userAgent.match(/Edge/i)
+}
+
 var MaskedInput = React.createClass({
   propTypes: {
     mask: React.PropTypes.string.isRequired,
@@ -203,12 +207,16 @@ var MaskedInput = React.createClass({
   render() {
     var {mask, formatCharacters, size, placeholder, placeholderChar, ...props} = this.props
     var patternLength = this.mask.pattern.length
+    var event = {}
+
+    isIEEdgeDesktop() ? event.onKeyPress = this._onKeyPress : event.onBeforeInput = this._onKeyPress
+
     return <input {...props}
       ref={r => this.input = r }
       maxLength={patternLength}
       onChange={this._onChange}
       onKeyDown={this._onKeyDown}
-      onBeforeInput={this._onKeyPress}
+      {...event}
       onPaste={this._onPaste}
       placeholder={placeholder || this.mask.emptyValue}
       size={size || patternLength}
